@@ -25,9 +25,18 @@ const initialTravellers = [
 
 function TravellerRow(props) {
   {/*Q3. Placeholder to initialize local variable based on traveller prop.*/}
+  const { id, name, phone, bookingTime, email, destination, seatNumber, ticketType } = props.traveller;
   return (
     <tr>
-	  {/*Q3. Placeholder for rendering one row of a table with required traveller attribute values.*/}
+   {/*Q3. Placeholder for rendering one row of a table with required traveller attribute values.*/}
+   <td>{id}</td>
+    <td>{name}</td>
+    <td>{phone}</td>
+    <td>{bookingTime}</td>
+    <td>{email}</td>
+    <td>{destination}</td>
+    <td>{seatNumber}</td>
+    <td>{ticketType}</td>
     </tr>
   );
 }
@@ -41,14 +50,19 @@ function Display(props) {
       <thead>
         <tr>
 	  {/*Q3. Below table is just an example. Add more columns based on the traveller attributes you choose.*/}
-          <th>ID</th>
-          <th>Name</th>
-          <th>Phone</th>
-          <th>Booking Time</th>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Booking Time</th>
+        <th>Email</th>
+        <th>Destination</th>
+        <th>Seat Number</th>
+        <th>Ticket Type</th>
         </tr>
       </thead>
       <tbody>
         {/*Q3. write code to call the JS variable defined at the top of this function to render table rows.*/}
+        {props.travellers.map(traveller => <TravellerRow key={traveller.id} traveller={traveller} />)}
       </tbody>
     </table>
   );
@@ -63,7 +77,22 @@ class Add extends React.Component {
   handleSubmit(e) {
     e.preventDefault();
     /*Q4. Fetch the passenger details from the add form and call bookTraveller()*/
+    
+    const form = e.target;
+    const newTraveller = {
+      id: form.id.value, 
+      name: form.travellername.value, 
+      phone: form.phone.value, 
+      email: form.email.value, 
+      destination: form.destination.value, 
+      bookingTime: form.bookingTime.value,
+      seatNumber: form.seatNumber.value,
+      ticketType: form.ticketType.value, 
+    };
+
+    this.props.bookTraveller(newTraveller);
   }
+
 
   render() {
     return (
