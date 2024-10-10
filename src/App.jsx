@@ -77,7 +77,6 @@ class Add extends React.Component {
     
     const form = e.target;
     const newTraveller = {
-      id: form.id.value, 
       name: form.travellername.value, 
       phone: form.phone.value, 
       email: form.email.value, 
@@ -146,21 +145,39 @@ class Homepage extends React.Component {
       width: '30px',
       height: '30px',
       margin: '5px',
-      backgroundColor: 'orange', // Default color for unreserved seats
+      backgroundColor: 'green', // Default color for unreserved seats
     };
 
     const reservedSeatStyle = {
       ...seatStyle,
-      backgroundColor: 'green', // Color for reserved seats
+      backgroundColor: 'grey', // Color for reserved seats
     };
 
     return (
       <div>
         <h2>Welcome to Ticket To Ride!!!</h2>
         <h2>Seat Availability</h2>
+
+        {/* Legend Section */}
+        <div style={{ marginBottom: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ width: '30px', height: '30px', backgroundColor: 'green', marginRight: '10px' }}></div>
+            <span>Empty Seat (Green)</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
+            <div style={{ width: '30px', height: '30px', backgroundColor: 'grey', marginRight: '10px' }}></div>
+            <span>Occupied Seat (Grey)</span>
+          </div>
+        </div>
+
+        {/* Seat Map Section */}
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
           {this.props.seats.map((seat) => (
-            <div key={seat.id} style={seat.isReserved ? reservedSeatStyle : seatStyle} />
+            <div 
+              key={seat.id} 
+              style={seat.isReserved ? reservedSeatStyle : seatStyle} 
+              title={`Seat ${seat.id}`} // This will show seat number on hover
+            />
           ))}
         </div>
       </div>
@@ -249,7 +266,7 @@ class TicketToRide extends React.Component {
           seat.id === seatNumber ? { ...seat, isReserved: true } : seat
         )
       };
-    });
+    }, this.updateSeats); // Ensure seat map updates after state change
   }
 
   deleteTraveller(passengerId) {
@@ -271,7 +288,7 @@ class TicketToRide extends React.Component {
           seat.id === parseInt(travellerToDelete.seatNumber, 10) ? { ...seat, isReserved: false } : seat
         )
       };
-    });
+    }, this.updateSeats); // Ensure seat map updates after state change
   }
 
   render() {
