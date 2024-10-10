@@ -8,7 +8,7 @@ const initialTravellers = [
     email: 'jack@email.com',
     destination: 'New York',
     seatNumber: '1',
-    ticketType: 'First Class'
+    ticketType: 'Business'
   },
   {
     id: 2,
@@ -123,18 +123,53 @@ class Delete extends React.Component {
   }
   handleSubmit(e) {
     e.preventDefault();
+    /*Q5. Fetch the passenger details from the deletion form and call deleteTraveller()*/
+    const form = e.target;
+    const travellerId = form.travellerId.value;
+
+    const idToDelete = parseInt(travellerId, 10);
+
+    this.props.deleteTraveller(idToDelete);
+  }
+
+  render() {
+    return (
+      <form name="deleteTraveller" onSubmit={this.handleSubmit}>
+	    {/*Q5. Placeholder form to enter information on which passenger's ticket needs to be deleted. Below code is just an example.*/}
+        <input type="number" name="travellerId" placeholder="Traveller ID" required />
+        <button type="submit">Delete</button>
+      </form>
+    );
   }
 }
-    /*Q5. Fetch the passenger details from the deletion form and call deleteTraveller()*/
-
 
 class Homepage extends React.Component {
-	constructor(props) {
-    super(props);
-    this.state = {
-      seats: Array(10).fill().map((_, index) => ({ id: index, isReserved: false })),
+  render() {
+    const seatStyle = {
+      width: '30px',
+      height: '30px',
+      margin: '5px',
+      backgroundColor: 'orange', // Default color for unreserved seats
     };
-	}
+
+    const reservedSeatStyle = {
+      ...seatStyle,
+      backgroundColor: 'green', // Color for reserved seats
+    };
+
+    return (
+      <div>
+        <h2>Welcome to Ticket To Ride!!!</h2>
+        <h2>Seat Availability</h2>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+          {this.props.seats.map((seat) => (
+            <div key={seat.id} style={seat.isReserved ? reservedSeatStyle : seatStyle} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+}
 
   componentDidMount() {
     const travellersData = [
@@ -182,10 +217,15 @@ class Homepage extends React.Component {
 	}
 }
 
+
 class TicketToRide extends React.Component {
   constructor() {
     super();
-    this.state = { travellers: [], selector: 1};
+    this.state = { 
+      travellers: [], 
+      selector: 1,
+      seats: Array(10).fill().map((_, index) => ({ id: index, isReserved: false }))
+    };
     this.bookTraveller = this.bookTraveller.bind(this);
     this.deleteTraveller = this.deleteTraveller.bind(this);
   }
@@ -217,7 +257,19 @@ class TicketToRide extends React.Component {
   }
 
   bookTraveller(newTraveller) {
-    /*Q4. Write code to add a passenger to the traveller state variable.*/
+    const seatNumber = parseInt(newTraveller.seatNumber, 10);
+    
+    // Prevent overflow - Ensure that the seat is not already reserved
+    if (this.state.seats[seatNumber].isReserved) {
+      alert(`Seat ${seatNumber} is already taken.`);
+      return;
+    }
+
+    if (this.state.travellers.length >= 10) {
+      alert("No more seats available.");
+      return;
+    }
+
     this.setState(prevState => {
       let maxId = 0;
       prevState.travellers.forEach(t => {
@@ -228,14 +280,56 @@ class TicketToRide extends React.Component {
       alert(`Traveller ${newTraveller.name} added successfully with ID ${newId}.`);
 
       return {
-        travellers: [...prevState.travellers, {...newTraveller, id: newId}]
+        travellers: [...prevState.travellers, { ...newTraveller, id: newId }],
+        seats: prevState.seats.map(seat =>
+          seat.id === seatNumber ? { ...seat, isReserved: true } : seat
+        )
       };
     });
   }
 
   deleteTraveller(passengerId) {
-	  /*Q5. Write code to delete a passenger from the traveller state variable.*/
+    const travellerToDelete = this.state.travellers.find(traveller => traveller.id === passengerId);
 
+    if (!travellerToDelete) {
+      alert(`Traveller with ID ${passengerId} not found.`);
+      return;
+    }
+
+    this.setState(prevState => {
+      const updatedTravellers = prevState.travellers.filter(traveller => traveller.id !== passengerId);
+
+      alert(`Traveller with ID ${passengerId} deleted successfully.`);
+
+      return {
+        travellers: updatedTravellers,
+        seats: prevState.seats.map(seat =>
+          seat.id === parseInt(travellerToDelete.seatNumber, 10) ? { ...seat, isReserved: false } : seat
+        )
+      };
+    });
+  }
+  deleteTraveller(passengerId) {
+    const travellerToDelete = this.state.travellers.find(traveller => traveller.id === passengerId);
+
+    if (!travellerToDelete) {
+      alert(`Traveller with ID ${passengerId} not found.`);
+      return;
+    }
+
+    this.setState(prevState => {
+      const updatedTravellers = prevState.travellers.filter(traveller => traveller.id !== passengerId);
+
+      alert(`Traveller with ID ${passengerId} deleted successfully.`);
+
+      return {
+        travellers: updatedTravellers,
+        seats: prevState.seats.map(seat =>
+          seat.id === parseInt(travellerToDelete.seatNumber, 10) ? { ...seat, isReserved: false } : seat
+        )
+      };
+    });
+  }
 	  {/*Q2. Code for Navigation bar. Use basic buttons to create a nav bar. Use states to manage selection.*/}
     <button onClick={() => this.setSelector(1)}>Home</button>
     <button onClick={() => this.setSelector(2)}>Display Travellers</button>
