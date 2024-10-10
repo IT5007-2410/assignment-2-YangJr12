@@ -41,9 +41,7 @@ function TravellerRow(props) {
 }
 
 function Display(props) {
-  
   /*Q3. Write code to render rows of table, each corresponding to one traveller. Make use of the TravellerRow function that draws one row.*/
-
   return (
     <table className="bordered-table">
       <thead>
@@ -196,7 +194,7 @@ class TicketToRide extends React.Component {
   componentDidMount() {
     const savedTravellers = localStorage.getItem('travellers');
     if (savedTravellers) {
-      this.setState({ travellers: JSON.parse(savedTravellers) });
+      this.setState({ travellers: JSON.parse(savedTravellers) }, this.updateSeats);
     } else {
       this.loadData();
     }
@@ -204,8 +202,22 @@ class TicketToRide extends React.Component {
 
   loadData() {
     setTimeout(() => {
-      this.setState({ travellers: initialTravellers });
+      this.setState({ travellers: initialTravellers }, this.updateSeats);
     }, 500);
+  }
+
+  updateSeats() {
+    // Map through travellers and mark their seat as reserved
+    this.setState(prevState => {
+      const reservedSeatNumbers = prevState.travellers.map(traveller => parseInt(traveller.seatNumber, 10));
+
+      return {
+        seats: prevState.seats.map(seat => ({
+          ...seat,
+          isReserved: reservedSeatNumbers.includes(seat.id)
+        }))
+      };
+    });
   }
 
   bookTraveller(newTraveller) {
